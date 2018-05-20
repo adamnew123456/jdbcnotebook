@@ -4,6 +4,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Information about a result set retrieved from the server.
+ */
 public class ReaderMetadata {
     @JsonProperty("columnnames")
     public List<String> columnNames;

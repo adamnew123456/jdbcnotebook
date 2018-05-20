@@ -7,6 +7,10 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.googlecode.jsonrpc4j.ErrorResolver;
 
+/**
+ * Formats errors in a standard way, instead of the default method used by 
+ * the JSON-RPC library.
+ */
 public class StandardErrorResolver implements ErrorResolver {
 	@Override
 	public JsonError resolveError(Throwable exception, Method method, List<JsonNode> args) {

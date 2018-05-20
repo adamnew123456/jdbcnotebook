@@ -6,6 +6,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * A wrapper around a raw Connection that returns data in more useful formats.
+ */
 public class JdbcConnection {
     private String className;
     private String connectionString;
@@ -17,11 +20,17 @@ public class JdbcConnection {
         this.connection = null;
     }
 
+    /*
+     * Opens a connection to the JDBC driver.
+     */
     public void open() throws ClassNotFoundException, SQLException {
         Class.forName(className);
         connection = DriverManager.getConnection(connectionString);
     }
 
+    /**
+     * Gets a list of all tables in the database.
+     */
     public List<TableMetadata> getTables() throws SQLException {
     	ResultSet tableRows = connection.getMetaData().getTables(null, null, null, new String[] {"TABLE"});
     	
@@ -36,6 +45,9 @@ public class JdbcConnection {
     	return tables;
     }
     
+    /**
+     * Gets a list of all views in the database.
+     */
     public List<TableMetadata> getViews() throws SQLException {
     	ResultSet viewRows = connection.getMetaData().getTables(null, null, null, new String[] {"VIEW"});
     	
@@ -50,6 +62,9 @@ public class JdbcConnection {
     	return views;
     }
     
+    /**
+     * Gets a list of all columns in the database.
+     */
     public List<ColumnMetadata> getColumns() throws SQLException {
     	ResultSet columnRows = connection.getMetaData().getColumns(null, null, "%", "%");
     	
@@ -66,6 +81,9 @@ public class JdbcConnection {
     	return columns;
     }
     
+    /**
+     * Executes a query, returning a paginator containing the results.
+     */
     public JdbcResultPaginator execute(String sql) throws SQLException {
     	Statement statement = connection.createStatement();
     	boolean hasResults = statement.execute(sql);
@@ -76,6 +94,9 @@ public class JdbcConnection {
     	}
     }
 
+    /*
+     * Closes the connection to the JDBC driver.
+     */
     public void close() throws SQLException {
         if (connection != null) {
             connection.close();

@@ -6,57 +6,66 @@ import org.eclipse.jetty.server.Server;
 
 public class App
 {
+	static class RunConfiguration
+	{
+		public int portNumber;
+		public String className;
+		public String connectionString;
+	}
+	
     private static void printHelpAndDie() {
         System.err.println("server [-p <port-number>] -j <class-name> <connection-string>");
         System.exit(1);
     }
-
-    public static void main(String[] args)
-    {
-        int portNumber = -1;
-        String className = null;
-        String connectionString = null;
-
+    
+    private static RunConfiguration processCommandLineArguments(String[] args) {
+    	RunConfiguration config = new RunConfiguration();
+    	
         try {
             for (int i = 0; i < args.length; i++) {
                 if (args[i].equals("-p")) {
-                    if (portNumber != -1) printHelpAndDie();
+                    if (config.portNumber != -1) printHelpAndDie();
 
-                    portNumber = Integer.parseInt(args[i + 1]);
-                    if (portNumber < 1 || portNumber > 65535) printHelpAndDie();
+                    config.portNumber = Integer.parseInt(args[i + 1]);
+                    if (config.portNumber < 1 || config.portNumber > 65535) return null;
 
                     i++;
                 }
                 else if (args[i].equals("-j")) {
-                    if (className != null) printHelpAndDie();
+                    if (config.className != null) return null;
 
-                    className = args[i + 1];
-                    connectionString = args[i + 2];
+                    config.className = args[i + 1];
+                    config.connectionString = args[i + 2];
                     i += 2;
                 }
             }
         } catch (IndexOutOfBoundsException error) {
-            printHelpAndDie();
+        	return null;
         } catch (NumberFormatException error) {
-            printHelpAndDie();
+        	return null;
         }
         
-        if (className == null) printHelpAndDie();
+        config.portNumber = config.portNumber == -1 ? 1995 : config.portNumber;
+        return config;
+    }
 
-        portNumber = portNumber == -1 ? 1995 : portNumber;
+    public static void main(String[] args)
+    {
+    	RunConfiguration config = new RunConfiguration();
+    	if (config == null || config.className == null) printHelpAndDie();
         
-        JdbcConnection connection = new JdbcConnection(className, connectionString);
+        JdbcConnection connection = new JdbcConnection(config.className, config.connectionString);
         try {
         	connection.open();
         } catch (SQLException error) {
         	System.err.println("Could not open connection: " + error);
         	System.exit(1);
         } catch (ClassNotFoundException error) {
-        	System.err.println("Could not load driver class " + className);
+        	System.err.println("Could not load driver class " + config.className);
         	System.exit(1);
         }
         
-        Server server = new Server(portNumber);
+        Server server = new Server(config.portNumber);
         RpcHttpAdapter adapter = new RpcHttpAdapter(server, connection);
 		server.setHandler(adapter);
         

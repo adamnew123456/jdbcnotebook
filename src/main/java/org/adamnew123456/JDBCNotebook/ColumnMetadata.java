@@ -2,6 +2,9 @@ package org.adamnew123456.JDBCNotebook;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Information about columns retrieved from the server.
+ */
 public class ColumnMetadata {
     @JsonProperty("catalog")
     public String catalog;

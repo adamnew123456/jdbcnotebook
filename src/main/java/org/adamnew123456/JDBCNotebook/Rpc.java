@@ -7,6 +7,9 @@ import java.util.Map;
 import com.googlecode.jsonrpc4j.JsonRpcError;
 import com.googlecode.jsonrpc4j.JsonRpcErrors;
 
+/**
+ * The actual implementation of the RPC methods.
+ */
 public class Rpc {
 	private JdbcConnection connection;
 	private JdbcResultPaginator paginator;

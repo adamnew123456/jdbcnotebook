@@ -12,6 +12,9 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+/**
+ * Mediates between the embedded Jetty instance and the JSON-RPC processor.
+ */
 public class RpcHttpAdapter extends AbstractHandler {
 	private Server jetty;
     private JsonRpcServer server;
