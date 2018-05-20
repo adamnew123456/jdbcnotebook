@@ -13,9 +13,9 @@ public class ReaderMetadata {
 
     @JsonProperty("columntypes")
     public List<String> columnTypes;
-    
+
     public ReaderMetadata() {
-    	columnNames = new ArrayList<String>();
-    	columnTypes = new ArrayList<String>();
+        columnNames = new ArrayList<String>();
+        columnTypes = new ArrayList<String>();
     }
 }

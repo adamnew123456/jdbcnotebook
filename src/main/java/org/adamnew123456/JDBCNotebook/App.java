@@ -6,21 +6,21 @@ import org.eclipse.jetty.server.Server;
 
 public class App
 {
-	static class RunConfiguration
-	{
-		public int portNumber;
-		public String className;
-		public String connectionString;
-	}
-	
+    static class RunConfiguration
+    {
+        public int portNumber;
+        public String className;
+        public String connectionString;
+    }
+
     private static void printHelpAndDie() {
         System.err.println("server [-p <port-number>] -j <class-name> <connection-string>");
         System.exit(1);
     }
-    
+
     private static RunConfiguration processCommandLineArguments(String[] args) {
-    	RunConfiguration config = new RunConfiguration();
-    	
+        RunConfiguration config = new RunConfiguration();
+
         try {
             for (int i = 0; i < args.length; i++) {
                 if (args[i].equals("-p")) {
@@ -40,35 +40,35 @@ public class App
                 }
             }
         } catch (IndexOutOfBoundsException error) {
-        	return null;
+            return null;
         } catch (NumberFormatException error) {
-        	return null;
+            return null;
         }
-        
+
         config.portNumber = config.portNumber == -1 ? 1995 : config.portNumber;
         return config;
     }
 
     public static void main(String[] args)
     {
-    	RunConfiguration config = new RunConfiguration();
-    	if (config == null || config.className == null) printHelpAndDie();
-        
+        RunConfiguration config = new RunConfiguration();
+        if (config == null || config.className == null) printHelpAndDie();
+
         JdbcConnection connection = new JdbcConnection(config.className, config.connectionString);
         try {
-        	connection.open();
+            connection.open();
         } catch (SQLException error) {
-        	System.err.println("Could not open connection: " + error);
-        	System.exit(1);
+            System.err.println("Could not open connection: " + error);
+            System.exit(1);
         } catch (ClassNotFoundException error) {
-        	System.err.println("Could not load driver class " + config.className);
-        	System.exit(1);
+            System.err.println("Could not load driver class " + config.className);
+            System.exit(1);
         }
-        
+
         Server server = new Server(config.portNumber);
         RpcHttpAdapter adapter = new RpcHttpAdapter(server, connection);
-		server.setHandler(adapter);
-        
+        server.setHandler(adapter);
+
         try {
             server.start();
             server.dumpStdErr();

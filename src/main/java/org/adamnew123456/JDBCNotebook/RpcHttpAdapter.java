@@ -16,7 +16,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
  * Mediates between the embedded Jetty instance and the JSON-RPC processor.
  */
 public class RpcHttpAdapter extends AbstractHandler {
-	private Server jetty;
+    private Server jetty;
     private JsonRpcServer server;
     private Rpc rpc;
 
@@ -32,14 +32,14 @@ public class RpcHttpAdapter extends AbstractHandler {
                        Request request,
                        HttpServletRequest httpServletRequest,
                        HttpServletResponse httpServletResponse) throws IOException, ServletException {
-    	server.handle(httpServletRequest, httpServletResponse);
-    	
-    	if (rpc.finished) {
-    		try {
-				this.jetty.stop();
-    		} catch (Exception error) {
-    			throw new ServletException(error);
-    		}
-    	}
+        server.handle(httpServletRequest, httpServletResponse);
+
+        if (rpc.finished) {
+            try {
+                this.jetty.stop();
+            } catch (Exception error) {
+                throw new ServletException(error);
+            }
+        }
     }
 }
