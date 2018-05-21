@@ -45,13 +45,13 @@ public class App
             return null;
         }
 
-        config.portNumber = config.portNumber == -1 ? 1995 : config.portNumber;
+        config.portNumber = config.portNumber == 0 ? 1995 : config.portNumber;
         return config;
     }
 
     public static void main(String[] args)
     {
-        RunConfiguration config = new RunConfiguration();
+        RunConfiguration config = processCommandLineArguments(args);
         if (config == null || config.className == null) printHelpAndDie();
 
         JdbcConnection connection = new JdbcConnection(config.className, config.connectionString);
