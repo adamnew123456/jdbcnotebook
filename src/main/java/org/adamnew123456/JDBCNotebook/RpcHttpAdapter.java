@@ -28,8 +28,24 @@ public class RpcHttpAdapter extends AbstractHandler {
 		this.server.setErrorResolver(new StandardErrorResolver());
 	}
 
+	private void processCORSRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		response.addHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+		response.addHeader("Access-Control-Allow-Headers", "Content-Type");
+		response.addHeader("Access-Control-Max-Age", "86400");
+	}
+
 	public void handle(String s, Request request, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) throws IOException, ServletException {
+		processCORSRequest(httpServletRequest, httpServletResponse);
+
+		if (httpServletRequest.getMethod().equals("OPTIONS")) {
+			httpServletResponse.setContentLength(0);
+			httpServletResponse.setStatus(200);
+			httpServletResponse.getOutputStream().flush();
+			return;
+		}
+
 		server.handle(httpServletRequest, httpServletResponse);
 
 		if (rpc.finished) {
