@@ -33,11 +33,19 @@ public class RpcHttpAdapter extends AbstractHandler {
 		server.handle(httpServletRequest, httpServletResponse);
 
 		if (rpc.finished) {
-			try {
-				this.jetty.stop();
-			} catch (Exception error) {
-				throw new ServletException(error);
-			}
+			final Server localJetty = jetty;
+
+			// This doesn't actually kill the server if done in the same
+			// thread, so a new one needs to be spawned for this purpose.
+			new Thread() {
+				public void run() {
+					try {
+						localJetty.stop();
+					} catch (Exception error) {
+						throw new RuntimeException(error);
+					}
+				}
+			}.start();
 		}
 	}
 }
