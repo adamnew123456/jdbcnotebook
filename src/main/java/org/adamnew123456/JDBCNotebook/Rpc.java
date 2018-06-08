@@ -33,9 +33,9 @@ public class Rpc {
     }
   }
 
-  public List<ColumnMetadata> columns() {
+  public List<ColumnMetadata> columns(String catalog, String schema, String table) {
     try {
-      return connection.getColumns();
+      return connection.getColumns(catalog, schema, table);
     } catch (SQLException error) {
       throw new RuntimeException(error);
     }

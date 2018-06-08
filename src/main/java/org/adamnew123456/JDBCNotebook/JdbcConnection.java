@@ -31,6 +31,7 @@ public class JdbcConnection {
     while (tableRows.next()) {
       TableMetadata table = new TableMetadata();
       table.catalog = tableRows.getString("TABLE_CAT");
+      table.schema = tableRows.getString("TABLE_SCHEM");
       table.table = tableRows.getString("TABLE_NAME");
       tables.add(table);
     }
@@ -47,6 +48,7 @@ public class JdbcConnection {
     while (viewRows.next()) {
       TableMetadata view = new TableMetadata();
       view.catalog = viewRows.getString("TABLE_CAT");
+      view.schema = viewRows.getString("TABLE_SCHEM");
       view.table = viewRows.getString("TABLE_NAME");
       views.add(view);
     }
@@ -55,13 +57,15 @@ public class JdbcConnection {
   }
 
   /** Gets a list of all columns in the database. */
-  public List<ColumnMetadata> getColumns() throws SQLException {
-    ResultSet columnRows = connection.getMetaData().getColumns(null, null, "%", "%");
+  public List<ColumnMetadata> getColumns(String catalog, String schema, String table)
+      throws SQLException {
+    ResultSet columnRows = connection.getMetaData().getColumns(catalog, schema, table, "%");
 
     ArrayList<ColumnMetadata> columns = new ArrayList<>();
     while (columnRows.next()) {
       ColumnMetadata column = new ColumnMetadata();
       column.catalog = columnRows.getString("TABLE_CAT");
+      column.schema = columnRows.getString("TABLE_SCHEM");
       column.table = columnRows.getString("TABLE_NAME");
       column.column = columnRows.getString("COLUMN_NAME");
       column.dataType = columnRows.getString("TYPE_NAME");

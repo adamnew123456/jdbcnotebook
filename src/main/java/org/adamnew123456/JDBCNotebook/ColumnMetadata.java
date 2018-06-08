@@ -7,6 +7,9 @@ public class ColumnMetadata {
   @JsonProperty("catalog")
   public String catalog;
 
+  @JsonProperty("schema")
+  public String schema;
+
   @JsonProperty("table")
   public String table;
 
