@@ -1,6 +1,7 @@
 package org.adamnew123456.JDBCNotebook;
 
 import java.sql.*;
+import java.util.Properties;
 import org.eclipse.jetty.server.Server;
 
 public class App {
@@ -8,15 +9,17 @@ public class App {
     public int portNumber;
     public String className;
     public String connectionString;
+    public Properties properties;
   }
 
   private static void printHelpAndDie() {
-    System.err.println("server [-p <port-number>] -j <class-name> <connection-string>");
+    System.err.println("server [-p <port-number>] -j <class-name> <connection-string> (-P <property> <value>)*");
     System.exit(1);
   }
 
   private static RunConfiguration processCommandLineArguments(String[] args) {
     RunConfiguration config = new RunConfiguration();
+    config.properties = new Properties();
 
     try {
       for (int i = 0; i < args.length; i++) {
@@ -32,6 +35,9 @@ public class App {
 
           config.className = args[i + 1];
           config.connectionString = args[i + 2];
+          i += 2;
+        } else if (args[i].equals("-P")) {
+          config.properties.setProperty(args[i + 1], args[i + 2]);
           i += 2;
         }
       }
@@ -49,7 +55,8 @@ public class App {
     RunConfiguration config = processCommandLineArguments(args);
     if (config == null || config.className == null) printHelpAndDie();
 
-    JdbcConnection connection = new JdbcConnection(config.className, config.connectionString);
+    JdbcConnection connection =
+        new JdbcConnection(config.className, config.connectionString, config.properties);
     try {
       connection.open();
     } catch (SQLException error) {

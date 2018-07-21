@@ -3,23 +3,26 @@ package org.adamnew123456.JDBCNotebook;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /** A wrapper around a raw Connection that returns data in more useful formats. */
 public class JdbcConnection {
   private String className;
   private String connectionString;
+  private Properties connectionProperties;
   private Connection connection;
 
-  public JdbcConnection(String className, String connectionString) {
+  public JdbcConnection(String className, String connectionString, Properties properties) {
     this.className = className;
     this.connectionString = connectionString;
+    this.connectionProperties = properties;
     this.connection = null;
   }
 
   /** Opens a connection to the JDBC driver. */
   public void open() throws ClassNotFoundException, SQLException {
     Class.forName(className);
-    connection = DriverManager.getConnection(connectionString);
+    connection = DriverManager.getConnection(connectionString, connectionProperties);
   }
 
   /** Gets a list of all tables in the database. */
