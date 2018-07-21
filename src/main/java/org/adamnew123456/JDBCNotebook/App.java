@@ -2,7 +2,14 @@ package org.adamnew123456.JDBCNotebook;
 
 import java.sql.*;
 import java.util.Properties;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class App {
   static class RunConfiguration {
@@ -10,10 +17,15 @@ public class App {
     public String className;
     public String connectionString;
     public Properties properties;
+    public boolean ssl;
+    public String keystoreFile;
+    public String keystorePassword;
+    public String keyPassword;
   }
 
   private static void printHelpAndDie() {
-    System.err.println("server [-p <port-number>] -j <class-name> <connection-string> (-P <property> <value>)*");
+    System.err.println(
+        "server [-p <port-number>] [-s <keystore> <store-password> <key-password>] -j <class-name> <connection-string> (-P <property> <value>)*");
     System.exit(1);
   }
 
@@ -39,6 +51,12 @@ public class App {
         } else if (args[i].equals("-P")) {
           config.properties.setProperty(args[i + 1], args[i + 2]);
           i += 2;
+        } else if (args[i].equals("-s")) {
+          config.ssl = true;
+          config.keystoreFile = args[i + 1];
+          config.keystorePassword = args[i + 2];
+          config.keyPassword = args[i + 3];
+          i += 3;
         }
       }
     } catch (IndexOutOfBoundsException error) {
@@ -67,7 +85,28 @@ public class App {
       System.exit(1);
     }
 
-    Server server = new Server(config.portNumber);
+    Server server;
+    if (config.ssl) {
+      server = new Server();
+
+      HttpConfiguration https = new HttpConfiguration();
+      https.addCustomizer(new SecureRequestCustomizer());
+
+      SslContextFactory sslContextFactory = new SslContextFactory();
+      sslContextFactory.setKeyStorePath(config.keystoreFile);
+      sslContextFactory.setKeyStorePassword(config.keystorePassword);
+      sslContextFactory.setKeyManagerPassword(config.keyPassword);
+      ServerConnector sslConnector =
+          new ServerConnector(
+              server,
+              new SslConnectionFactory(sslContextFactory, "http/1.1"),
+              new HttpConnectionFactory(https));
+      sslConnector.setPort(config.portNumber);
+      server.setConnectors(new Connector[] {sslConnector});
+    } else {
+      server = new Server(config.portNumber);
+    }
+
     RpcHttpAdapter adapter = new RpcHttpAdapter(server, connection);
     server.setHandler(adapter);
 
