@@ -17,3 +17,10 @@ Navigate to the target directory and run
 
 The `<class-name>` should be the JDBC driver class of a driver that was included
 in your classpath.
+
+## Options
+
+-  `-p port` Sets the port that the server listens on (default: 1995)
+- `-s keystore store-password key-password` Enables SSL, and loads the private key from the given JKS keystore
+- `-j class-name connection-string` Creates a connection using the given driver class and connection string
+- `-P property value` Sets connection properties within the driver's properties object. This can be repeated for any number of properties.
