@@ -36,7 +36,7 @@ public class App {
     try {
       for (int i = 0; i < args.length; i++) {
         if (args[i].equals("-p")) {
-          if (config.portNumber != -1) printHelpAndDie();
+          if (config.portNumber != 0) printHelpAndDie();
 
           config.portNumber = Integer.parseInt(args[i + 1]);
           if (config.portNumber < 1 || config.portNumber > 65535) return null;
