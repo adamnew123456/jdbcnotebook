@@ -55,7 +55,7 @@ public class Rpc {
     return true;
   }
 
-  public ReaderMetadata metadata() {
+  public List<ReaderMetadata> metadata() {
     if (paginator == null) {
       throw new RuntimeException("Cannot get metadata without active query");
     }
@@ -71,9 +71,12 @@ public class Rpc {
     }
   }
 
-  public List<Map<String, String>> page() {
+  public List<Map<String, String>> page(int size) {
+    if (size <= 0) {
+      throw new RuntimeException("Page size must be positive integer");
+    }
     try {
-      return paginator.getPage();
+      return paginator.getPage(size);
     } catch (SQLException error) {
       throw new RuntimeException(error);
     }

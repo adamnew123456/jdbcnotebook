@@ -1,19 +1,17 @@
 package org.adamnew123456.JDBCNotebook;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
 
 /** Information about a result set retrieved from the server. */
 public class ReaderMetadata {
-  @JsonProperty("columnnames")
-  public List<String> columnNames;
+  @JsonProperty("column")
+  public String column;
 
-  @JsonProperty("columntypes")
-  public List<String> columnTypes;
+  @JsonProperty("datatype")
+  public String dataType;
 
-  public ReaderMetadata() {
-    columnNames = new ArrayList<String>();
-    columnTypes = new ArrayList<String>();
+  public ReaderMetadata(String column, String datatype) {
+    this.column = column;
+    this.dataType = datatype;
   }
 }

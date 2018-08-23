@@ -9,17 +9,15 @@ import java.util.Map;
 /** A wrapper around a ResultSet that returns its rows in pages. */
 public class JdbcResultPaginator {
   private ResultSet results;
-  private ReaderMetadata metadata;
+  private List<ReaderMetadata> metadata;
   private int resultCount;
-
-  private int pageSize = 100;
 
   /** Builds a new paginator from a query that did return a result set. */
   public JdbcResultPaginator(ResultSet results) throws SQLException {
     this.results = results;
     this.resultCount = -1;
 
-    this.metadata = new ReaderMetadata();
+    this.metadata = new ArrayList<ReaderMetadata>();
     populateMetadata();
   }
 
@@ -27,20 +25,19 @@ public class JdbcResultPaginator {
   public JdbcResultPaginator(int resultCount) {
     this.results = null;
     this.resultCount = resultCount;
-    this.metadata = new ReaderMetadata();
+    this.metadata = new ArrayList<ReaderMetadata>();
   }
 
   /** Loads the column metdata from the result set. */
   private void populateMetadata() throws SQLException {
     ResultSetMetaData columns = results.getMetaData();
     for (int i = 1; i <= columns.getColumnCount(); i++) {
-      metadata.columnNames.add(columns.getColumnName(i));
-      metadata.columnTypes.add(columns.getColumnTypeName(i));
+      metadata.add(new ReaderMetadata(columns.getColumnName(i), columns.getColumnTypeName(i)));
     }
   }
 
   /** Returns the query's column information. */
-  public ReaderMetadata getMetadata() {
+  public List<ReaderMetadata> getMetadata() {
     return metadata;
   }
 
@@ -57,14 +54,14 @@ public class JdbcResultPaginator {
    * Returns the next page of restults from the result set. Only valid if the query returned a
    * result set.
    */
-  public List<Map<String, String>> getPage() throws SQLException {
+  public List<Map<String, String>> getPage(int size) throws SQLException {
     ArrayList<Map<String, String>> page = new ArrayList<>();
     while (results.next()) {
-      if (page.size() == pageSize) break;
+      if (page.size() == size) break;
 
       HashMap<String, String> row = new HashMap<>();
-      for (int i = 1; i <= metadata.columnNames.size(); i++) {
-        String columnName = metadata.columnNames.get(i - 1);
+      for (int i = 1; i <= metadata.size(); i++) {
+        String columnName = metadata.get(i - 1).column;
         Object value = results.getObject(i);
         if (value == null) {
           row.put(columnName, "null");

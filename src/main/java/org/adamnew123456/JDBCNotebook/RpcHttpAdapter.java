@@ -21,6 +21,7 @@ public class RpcHttpAdapter extends AbstractHandler {
     this.rpc = new Rpc(connection);
     this.server = new JsonRpcServer(rpc);
     this.server.setErrorResolver(new StandardErrorResolver());
+    this.server.setHttpStatusCodeProvider(new StandardHttpCodeProvider());
   }
 
   private void processCORSRequest(HttpServletRequest request, HttpServletResponse response)
@@ -42,6 +43,27 @@ public class RpcHttpAdapter extends AbstractHandler {
     if (httpServletRequest.getMethod().equals("OPTIONS")) {
       httpServletResponse.setContentLength(0);
       httpServletResponse.setStatus(200);
+      httpServletResponse.getOutputStream().flush();
+      return;
+    }
+
+    if (!httpServletRequest.getMethod().equals("POST")) {
+      httpServletResponse.setContentLength(0);
+      httpServletResponse.setStatus(405);
+      httpServletResponse.getOutputStream().flush();
+      return;
+    }
+
+    if (!httpServletRequest.getRequestURI().equals("/")) {
+      httpServletResponse.setContentLength(0);
+      httpServletResponse.setStatus(404);
+      httpServletResponse.getOutputStream().flush();
+      return;
+    }
+
+    if (!httpServletRequest.getContentType().equals("application/json")) {
+      httpServletResponse.setContentLength(0);
+      httpServletResponse.setStatus(400);
       httpServletResponse.getOutputStream().flush();
       return;
     }
