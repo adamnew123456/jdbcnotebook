@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -14,6 +16,7 @@ public class RpcHttpAdapter extends AbstractHandler {
   private Server jetty;
   private JsonRpcServer server;
   private Rpc rpc;
+  private static final Logger logger = LogManager.getLogger("RpcHttpAdapter");
 
   public RpcHttpAdapter(Server jetty, JdbcConnection connection) {
     super();
@@ -32,7 +35,7 @@ public class RpcHttpAdapter extends AbstractHandler {
     response.addHeader("Access-Control-Max-Age", "86400");
   }
 
-  public void handle(
+  public synchronized void handle(
       String s,
       Request request,
       HttpServletRequest httpServletRequest,
@@ -44,6 +47,7 @@ public class RpcHttpAdapter extends AbstractHandler {
       httpServletResponse.setContentLength(0);
       httpServletResponse.setStatus(200);
       httpServletResponse.getOutputStream().flush();
+      logger.info("Processing CORS OPTIONS request");
       return;
     }
 
@@ -51,6 +55,7 @@ public class RpcHttpAdapter extends AbstractHandler {
       httpServletResponse.setContentLength(0);
       httpServletResponse.setStatus(405);
       httpServletResponse.getOutputStream().flush();
+      logger.warn("Invalid request method: {}", httpServletRequest.getMethod());
       return;
     }
 
@@ -58,6 +63,7 @@ public class RpcHttpAdapter extends AbstractHandler {
       httpServletResponse.setContentLength(0);
       httpServletResponse.setStatus(404);
       httpServletResponse.getOutputStream().flush();
+      logger.warn("Invalid request path: {}", httpServletRequest.getRequestURI());
       return;
     }
 
@@ -65,6 +71,7 @@ public class RpcHttpAdapter extends AbstractHandler {
       httpServletResponse.setContentLength(0);
       httpServletResponse.setStatus(400);
       httpServletResponse.getOutputStream().flush();
+      logger.warn("Invalid request Content-Type: {}", httpServletRequest.getContentType());
       return;
     }
 
@@ -78,6 +85,7 @@ public class RpcHttpAdapter extends AbstractHandler {
       new Thread() {
         public void run() {
           try {
+            logger.info("Terminating web server");
             localJetty.stop();
           } catch (Exception error) {
             throw new RuntimeException(error);
